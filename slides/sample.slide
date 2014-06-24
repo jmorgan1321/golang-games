@@ -1,0 +1,33 @@
+Writing a Game Engine in Go
+With an interesting subtitile
+24 Jun 2014
+Tags: go golang 
+
+Jeff Morgan
+Go Hobbyist, Emergent Gameplay Design
+jeffreymogran1321@gmail.com
+http://thewhiteboard.com/
+@jmorgan1321
+
+* Who is this guy?
+
+.image ./image.jpg _ 400
+
+- Programming addict
+- C, Java, Ruby, Go
+- Director, JoshSoftware
+.link http://www.joshsoftware.com/team The JoshSoftware team
+
+* Example Go code
+
+.play -numbers hello.go
+
+* Who is this guy?
+** whatever's clever
+- ya know?
+- i do.
+
+
+* A Closer Look
+.play -edit hello.go /beg show A type OMIT/,/end show A type OMIT/ HLsl2
+ 
