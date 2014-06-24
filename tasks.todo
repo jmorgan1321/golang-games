@@ -1,0 +1,27 @@
+Intial Project Setup:
+  ✔ Source Control @done (14-06-24 12:41)
+    - git
+    - https://github.com/jmorgan1321/golang-games
+  ☐ Basic project organization
+    - plain tasks
+    - http://golang.org/doc/code.html#Organization
+  ☐ Sublime Text 3
+    - GoSublime, AdvancedNewFile, PlainTasks, VCSGutter, SideBarEnhancements
+  ☐ Golang install
+    - setup GOPATH/GOROOT
+
+Game Engine:
+  ☐ Learn how to make java script graphics
+  ☐ make game launcher
+  ☐ source control/inital project setup
+    - git
+
+Presentation:
+  ☐ learn how to use present tool
+    - https://godoc.org/code.google.com/p/go.tools/cmd/godoc
+  ☐
+
+Code Hosting:
+  ☐ learn Github markdown
+    - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+  ✔ Make initial README.md @done (14-06-24 12:40)
