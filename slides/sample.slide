@@ -1,7 +1,7 @@
 Writing a Game Engine in Go
 With an interesting subtitile
 24 Jun 2014
-Tags: go golang 
+Tags: go golang
 
 Jeff Morgan
 Go Hobbyist, Emergent Gameplay Design
@@ -30,4 +30,103 @@ http://thewhiteboard.com/
 
 * A Closer Look
 .play -edit hello.go /beg show A type OMIT/,/end show A type OMIT/ HLsl2
- 
+
+
+* Who am I?
+    Jeff Morgan
+    DigiPen Grad (3 Years)
+    HLSL Compiler Dev (MSFT)
+    Compiler/Language Enthusiast
+
+* What's a compiler, anyway?
+    - A Program that translates code from one form to another
+        - Most common -> Source code to executable
+            - human readable to machine readable
+        - Source-to-Source translator
+    - Closely related: Interpreters
+    - Layout
+        - generally 3 phases
+            - Front End
+                - takes source code from a specific language and turns into an intermediate representation, making sure program is valid
+                - tokenizer
+                    - reads source code and passes elems to parser
+                    - in: source code
+                    - out: lexeme stream
+                - parser
+                    - handles context free language constructs
+                        - ie, an if statement must be inside a function
+                    - in: lexemes
+                    - out: AST, symbol table
+                    - AST
+                        - Intermediate representation of program
+                    - Symbol Table
+                        - Stores information about identifiers
+                - semantic analyzer
+                    - ensures that code makes sense. ie, cant assign object to float var
+            - Optimizer
+                - IR
+                    - 3 address code
+                    - 4 address code
+                    - SSA
+                - whole program optimization
+                - peephole
+                - in: IR (or AST)
+                - out: "better" IR (can vary but is generally optimized and maybe stored in a way that's easier for the BE to process)
+            - Back End
+                - Generates machine code for specific architectures
+                - Register Allocation
+                - Instruciton Selection
+                - Linker
+                - Loader
+                - Assembler
+                - relocatable code
+                - executable code
+                - in: IR
+                - out: machine instructions
+
+* Current C++ compilers
+    - Pros and cons:
+        - gcc
+        - llvm
+        - cl
+
+* What Do I Need to Know to Write One?
+    - Data Structures
+        - Maps
+        - Vectors
+        - Lists
+    - Language
+        - Grammar (LR, LL(n), etc)
+        - Strong vs Weak Typing
+        - Function Prototypes or not
+        - Dynamic vs Static
+        - First Class Functions
+        - Control Structures
+        - Libraries vs Built-in
+        - includes
+        - linker
+        - calling convention
+    - Runtime Environment
+        - Stacks
+        - Registers
+        - Heaps
+    - Each individual component is straight forward enough to implement
+        - the interactions between stages is crucial
+        - organization is key
+
+* Tokenizer
+    - Go Overview
+        - Why Go?
+            - simple language, made to be easy to parse (in reverse, that means easy to write a front-end for)
+            - c style language without a lot of C++'s cruft
+            - built-in documentation, testing, and profiling
+    - In-depth tokenizer overview
+
+* Resources
+    - Books
+        - Engineering a Compiler
+        - Script Mastery
+    - Links
+        - Go Design Docs
+        - Dr Dobb's Design of LLVM
+        - Rob Pike's Lexing in Go Talk
