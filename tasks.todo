@@ -9,6 +9,10 @@ Intial Project Setup:
     - GoSublime, AdvancedNewFile, PlainTasks, VCSGutter, SideBarEnhancements
   ☐ Golang install
     - setup GOPATH/GOROOT
+  ☐ Get gdb (or gogdb)
+    - http://www.goinggo.net/2013/06/installing-go-gocode-gdb-and-liteide.html
+    - http://golang.org/doc/gdb
+  ☐ Get gocheck
 
 Game Engine:
   ☐ Learn how to make java script graphics
@@ -25,3 +29,7 @@ Code Hosting:
   ☐ learn Github markdown
     - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
   ✔ Make initial README.md @done (14-06-24 12:40)
+
+Go Resources:
+ ☐ http://gophervids.appspot.com/#
+   - a bunch of videos from go talks of yesteryear
