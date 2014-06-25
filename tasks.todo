@@ -15,6 +15,11 @@ Game Engine:
   ☐ make game launcher
   ☐ source control/inital project setup
     - git
+  ☐ core
+    ☐ gocs, components, spaces, subsystem, manager
+    ☐ factory
+      ☐ serialization, eof cleanup
+    ☐
 
 Presentation:
   ☐ learn how to use present tool

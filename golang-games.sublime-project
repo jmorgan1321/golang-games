@@ -1,0 +1,46 @@
+{
+    "folders":
+    [
+        {
+          "path":"./../",
+          "folder_exclude_patterns":["pkg", "bin"]
+        }
+    ],
+    "settings":
+    {
+    },
+    "build_systems": [
+    {
+        "name": "GoToolsBuildSys",
+        "cmd":  ["go", "build", "sample/refs"],
+        "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+        "working_dir": ".",
+        "variants": [
+        {
+          "name": "Run",
+          "cmd": ["go", "run", "$file"]
+        },
+        {
+          "name": "Test",
+          "cmd": ["go", "test", "-coverprofile=coverage.out", "slides"]
+        },
+        {
+          "name": "html",
+          "cmd": ["go", "tool", "cover", "-html=coverage.out"]
+        },
+        {
+          "name": "Help",
+          "cmd": ["go"]
+        },
+        {
+          "name": "Clean",
+          "cmd": ["go", "clean"]
+        },
+        {
+          "name": "Install",
+          "cmd": ["go", "install", "slides"]
+        }
+        ]
+    }
+    ]
+}
