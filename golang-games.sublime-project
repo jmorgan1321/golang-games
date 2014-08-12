@@ -9,6 +9,11 @@
           "path":"launcher",
           "name":"launcher",
           "folder_exclude_patterns":["pkg", "bin"]
+        },
+        {
+          "path":"core",
+          "name":"core",
+          "folder_exclude_patterns":["pkg", "bin"]
         }
     ],
     "settings":
