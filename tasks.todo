@@ -41,6 +41,8 @@ Debugging:
   ☐ Profiling
     - https://www.youtube.com/watch?v=_41bkNr7eik#t=290
     - http://blog.golang.org/profiling-go-programs
+    ☐ show how I profiled/improved GetComponent() (Slow reflection)
+
   ☐ GDB
     - http://golang.org/doc/gdb
     - https://github.com/Centny/GoGdb (go gdb sublime plugin)

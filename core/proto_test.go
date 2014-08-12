@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"reflect"
@@ -62,36 +63,51 @@ func assertEQ(tb testing.TB, exp, act interface{}, msg string) {
 	}
 }
 
+type EventHandler interface {
+	RegisterForEvent(string, Space, EventHandlerFunc)
+	TriggerEvent(string, EventData)
+}
+
+type SubSpaceManager interface {
+	AddSubSpace(Space)
+	GetSubSpace(string) (Space, error)
+	// RemSubSpace(string)
+}
+
+// Identifier types store basic (uniquely) identifying information about themselves.
+type Identifier interface {
+	Name() string
+	SetName(string)
+	// Type() string
+}
+
+// Initalizer types can be constructed/destructed.
+type Initializer interface {
+	Construct() error
+	Destruct() error
+}
+
+type ComponentManager interface {
+	GetComponent(string) (interface{}, error)
+}
+
 // TODO: I should separate things out based on their interfaces.
 //       So, RegisterForEvent will take an EventHandler
 
 // Spaces just hold things and know how to delegate to the things they contain.
 type Space interface {
-	// EventHandler
-	EventHandler() *EventHandlerComponent
-	RegisterForEvent(string, Space, EventHandlerFunc)
-	TriggerEvent(string, EventData)
-
+	EventHandler
 	// SubSpaceManager - Too specific? SpaceManagerComponent, would allow components to be here as well.
 	//                   Components shouldn't have subspaces, though.
-	AddSubSpace(Space)
-	GetSubSpace(string) (Space, error)
-	// RemSubSpace(string)
-
-	// Initializer
-	Construct() error
-	Destruct() error
-
-	// Identifier
-	Name() string
-	SetName(string)
-	Type() string
-
-	// ComponentManager
-	GetComponent(string) (Component, error)
+	SubSpaceManager
+	Initializer
+	Identifier
+	ComponentManager
 }
 
-type Component interface{}
+type Component interface {
+	IsComponent()
+}
 
 type BasicSpace struct {
 	*IdentifierComponent
@@ -112,6 +128,8 @@ func (bs *BasicSpace) Construct() error {
 
 	bs.ComponentManagerComponent = &ComponentManagerComponent{}
 	bs.ComponentManagerComponent.Construct()
+	bs.ComponentManagerComponent.Owner = bs
+
 	return nil
 }
 
@@ -120,13 +138,27 @@ func (bs *BasicSpace) Destruct() error {
 }
 
 type ComponentManagerComponent struct {
+	Owner Space
 }
 
 func (cmc *ComponentManagerComponent) Construct() error {
 	return nil
 }
-func (cmc *ComponentManagerComponent) GetComponent(string) (Component, error) {
-	return nil, nil
+func (cmc *ComponentManagerComponent) GetComponent(name string) (interface{}, error) {
+	// loop through the struct's fields and set the map
+	v := reflect.ValueOf(cmc.Owner)
+	typ := v.Type()
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+
+	// check for static components
+	c := v.Elem().FieldByName(name).Elem().Addr()
+
+	// TODO: check dynmaic components if static component not found
+
+	iface := c.Interface().(Component)
+	return iface, nil
 }
 
 // IdentifierComponent exists to allow a GOC to be identify itself.
@@ -164,6 +196,11 @@ func (smc *SpaceManagerComponent) AddSubSpace(s Space) {
 func (smc *SpaceManagerComponent) GetSubSpace(name string) (Space, error) {
 	return smc.spaceMap[name], nil
 }
+
+func (*EventHandlerComponent) IsComponent()     {}
+func (*ComponentManagerComponent) IsComponent() {}
+func (*IdentifierComponent) IsComponent()       {}
+func (*SpaceManagerComponent) IsComponent()     {}
 
 // create will return a new space with the given name, inside of the parent
 // (if one is provided).  If jsonData is empty, the new space will be an
@@ -218,6 +255,9 @@ func (o *ObjectManager) CreateSpace(parent Space, name, filename string) Space {
 func (o *ObjectManager) createSpaceFromString(data string) Space {
 	s := &BasicSpace{}
 	// TODO: error check
+	json.Unmarshal([]byte(data), s)
+	fmt.Println("bs is:", s)
+	// TODO: error check
 	s.Construct()
 	return s
 }
@@ -227,8 +267,8 @@ func (o *ObjectManager) createSpaceFromString(data string) Space {
 type EventData interface{}
 
 type EventHandlerPair struct {
-	Space
-	Fn EventHandlerFunc
+	Space // Unused
+	Fn    EventHandlerFunc
 }
 
 type EventHandlerFunc func(EventData)
@@ -237,15 +277,13 @@ type EventHandlerComponent struct {
 	listeners map[string][]EventHandlerPair
 }
 
-// TODO: remove this for GetComp("EventHandler")
-func (ehc *EventHandlerComponent) EventHandler() *EventHandlerComponent {
-	return ehc
-}
-
 func (ehc *EventHandlerComponent) RegisterForEvent(event string, s Space, fn EventHandlerFunc) {
-	l := s.EventHandler().listeners[event]
+	// TODO: error check
+	c, _ := s.GetComponent("EventHandlerComponent")
+	sehc := c.(*EventHandlerComponent)
+	l := sehc.listeners[event]
 	l = append(l, EventHandlerPair{nil, fn})
-	s.EventHandler().listeners[event] = l
+	sehc.listeners[event] = l
 }
 func (ehc *EventHandlerComponent) TriggerEvent(event string, data EventData) {
 	for _, v := range ehc.listeners[event] {
@@ -299,7 +337,11 @@ func TestCore(t *testing.T) {
 	expectEQ(t, 5, testInt, "Messaging didn't work")
 	expectEQ(t, 10, test2Int, "Registering multiple messages didn't work")
 
-	// ehc, _ := g1.GetComponent("EventHandlerComponent")
-	// ehc.(*EventHandlerComponent).TriggerEvent("MyEvent", 6)
-	// expectEQ(t, 5, testInt, "GetComponent() failed.")
+	v := reflect.ValueOf(g1)
+	str := v.Type().Elem().Name()
+	fmt.Println(str)
+
+	ehc, _ := g1.GetComponent("EventHandlerComponent")
+	ehc.(*EventHandlerComponent).TriggerEvent("MyEvent", 6)
+	expectEQ(t, 6, testInt, "GetComponent() failed for static component")
 }
