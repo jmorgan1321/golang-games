@@ -36,19 +36,19 @@ func (bs *BasicSpace) Destruct() error {
 
 // ObjectManager creates, destroys, and stores Game Objects.
 type ObjectManager struct {
-	spaceMap map[string]types.Space
+	spaceMap map[string]coreType.Space
 }
 
 func (o *ObjectManager) Construct() error {
-	o.spaceMap = make(map[string]types.Space)
+	o.spaceMap = make(map[string]coreType.Space)
 	return nil
 }
 
-func (o *ObjectManager) GetByName(name string) (types.Space, error) {
+func (o *ObjectManager) GetByName(name string) (coreType.Space, error) {
 	return o.spaceMap[name], nil
 }
 
-func (o *ObjectManager) CreateSpace(parent types.Space, name, filename string) types.Space {
+func (o *ObjectManager) CreateSpace(parent coreType.Space, name, filename string) coreType.Space {
 	// TODO: hook core back in
 	// spaceJSON, _ := core.ResourceMgr.GetFileData(filename)
 	spaceJSON := "{}"
@@ -61,7 +61,7 @@ func (o *ObjectManager) CreateSpace(parent types.Space, name, filename string) t
 	return s
 }
 
-func (o *ObjectManager) createSpaceFromString(data string) types.Space {
+func (o *ObjectManager) createSpaceFromString(data string) coreType.Space {
 	s := &BasicSpace{}
 	// TODO: error check
 	json.Unmarshal([]byte(data), s)

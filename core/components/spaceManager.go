@@ -5,22 +5,22 @@ import (
 )
 
 type SpaceManagerComponent struct {
-	spaceMap map[string]types.Space
+	spaceMap map[string]coreType.Space
 }
 
 func (smc *SpaceManagerComponent) Construct() error {
-	smc.spaceMap = make(map[string]types.Space)
+	smc.spaceMap = make(map[string]coreType.Space)
 	return nil
 }
 
-// AddSubSpace inserts the types.Space into the SpaceManagerComponent, using types.Space's
+// AddSubSpace inserts the coreType.Space into the SpaceManagerComponent, using coreType.Space's
 // name as the key.
-func (smc *SpaceManagerComponent) AddSubSpace(s types.Space) {
+func (smc *SpaceManagerComponent) AddSubSpace(s coreType.Space) {
 	// TODO: check for duplicates
 	smc.spaceMap[s.Name()] = s
 }
 
-func (smc *SpaceManagerComponent) GetSubSpace(name string) (types.Space, error) {
+func (smc *SpaceManagerComponent) GetSubSpace(name string) (coreType.Space, error) {
 	return smc.spaceMap[name], nil
 }
 

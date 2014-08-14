@@ -1,4 +1,4 @@
-package types
+package coreType
 
 // import (
 //   "github.com/jmorgan1321/golang-games/core/kernel"

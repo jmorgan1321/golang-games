@@ -6,14 +6,13 @@ import (
 )
 
 type ComponentManagerComponent struct {
-	Owner types.Space
+	Owner coreType.Space
 }
 
 func (cmc *ComponentManagerComponent) Construct() error {
 	return nil
 }
 func (cmc *ComponentManagerComponent) GetComponent(name string) (interface{}, error) {
-	// loop through the struct's fields and set the map
 	v := reflect.ValueOf(cmc.Owner)
 	typ := v.Type()
 	if typ.Kind() == reflect.Ptr {
@@ -23,9 +22,9 @@ func (cmc *ComponentManagerComponent) GetComponent(name string) (interface{}, er
 	// check for static components
 	c := v.Elem().FieldByName(name).Elem().Addr()
 
-	// TODO: check dynmaic components if static component not found
+	// TODO: check dynamic components if static component not found
 
-	iface := c.Interface().(types.Component)
+	iface := c.Interface().(coreType.Component)
 	return iface, nil
 }
 

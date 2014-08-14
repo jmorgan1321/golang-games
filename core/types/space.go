@@ -1,4 +1,4 @@
-package types
+package coreType
 
 // Spaces just hold things and know how to delegate to the things they contain.
 type Space interface {
