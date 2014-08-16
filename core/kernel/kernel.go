@@ -1,140 +1,109 @@
 package kernel
 
 import (
-	"reflect"
-	// "github.com/jmorgan1321/golang-games/core/managers"
 	"github.com/jmorgan1321/golang-games/core/debug"
-	"github.com/jmorgan1321/golang-games/core/support"
+	"github.com/jmorgan1321/golang-games/core/utils"
 )
 
-type GameObject interface{}
-type Goc struct {
-	Comps []Component
-}
+// CoreFactoryFunc allows users to extend the factory by adding in types that
+// they want to serialize in.
+//
+// Ie:
+// CoreFactoryFunc = func(string) interface{} {
+//   switch name {
+//   case "myNewObj", "MyNewObj":
+//     return &MyNewObj{}
+//   }
+// }
+var CoreFactoryFunc func(string) interface{}
 
-func (goc *Goc) AddComp(c Component) {
-	goc.Comps = append(goc.Comps, c)
-}
-
-type Component interface{}
-type Manager interface{}
-
-var CoreTempFactoryFunc func(string) Component
-
+// A Core is used to drive every system of the game.  It ticks once a frame a
+// causing all other game components to fire.
+//
 type Core struct {
-	// ResourceMgr *managers.ResourceManager
-	// Factory     *managers.ObjectManager
-	config GameObject
+	managers []Manager
+	spaces   []Space
+	GameData
 }
 
-func (c *Core) Startup() {
-	debug.Trace()
-	defer debug.UnTrace()
-}
-func (c *Core) Shutdown() {
-	debug.Trace()
-	defer debug.UnTrace()
-}
-func (c *Core) Run() {
-	debug.Trace()
-	defer debug.UnTrace()
+// GameData stores information about the game, like frame information and game
+// state.
+type GameData struct {
+	CurrFrame int
+	State     State
 }
 
-func New(configFile string) *Core {
+func New() *Core {
 	debug.Trace()
 	defer debug.UnTrace()
 
-	core := &Core{
-	// ResourceMgr: &managers.ResourceManager{},
-	// Factory:     &managers.ObjectManager{},
-	}
+	core := &Core{}
+	core.State = Running
 
-	// core.ResourceMgr.Construct()
-	// core.Factory.Construct()
-
-	core.config = loadConfig(configFile)
 	return core
 }
 
-func loadConfig(file string) GameObject {
+func (c *Core) StartUp(config GameObject) {
 	debug.Trace()
 	defer debug.UnTrace()
 
-	data, err := support.OpenFile(file)
-	if err != nil {
-		return nil
+	for _, m := range c.managers {
+		m.StartUp(config)
 	}
 
-	holder, err := support.ReadData(data)
-	if err != nil {
-		return nil
+	for _, s := range c.spaces {
+		s.Init()
 	}
-
-	var goc Goc
-	// TODO: move this somewhere else
-	Serialize(&goc, holder)
-	support.Log("goc: %#v", goc)
-
-	return nil
 }
 
-// TODO: Clean up Serialize()
-
-func Serialize(obj, data interface{}) {
+func (c *Core) ShutDown() {
 	debug.Trace()
 	defer debug.UnTrace()
 
-	m := data.(map[string]interface{})
-	support.Log("map: %v", m)
-	for k, v := range m {
-		support.Log("working with field: %s", k)
+	for i := len(c.managers) - 1; i >= 0; i-- {
+		c.managers[i].ShutDown()
+	}
 
-		if k == "Type" {
-			switch v {
-			case "Goc":
-				// create a goc to put into obj interface?
-				continue
-			}
+	for i := len(c.spaces) - 1; i >= 0; i-- {
+		c.spaces[i].DeInit()
+	}
+}
+
+func (c *Core) Run() utils.ReturnCode {
+	debug.Trace()
+	defer debug.UnTrace()
+
+UpdateLoop:
+	for c.State == Running || c.State == Stopped {
+		// support.Log("what the heck %s", c.State)
+		c.GameData.CurrFrame++
+
+		for _, mgr := range c.managers {
+			mgr.BeginFrame()
+			defer mgr.EndFrame()
 		}
 
-		// support.Log("curr obj: %#v", obj)
-		currField := reflect.ValueOf(obj).Elem().FieldByName(k)
-		// support.Log("currField: %#v", currField)
+		for _, spc := range c.spaces {
+			spc.Update()
+		}
 
-		switch vv := v.(type) {
-		case string:
-			currField.SetString(vv)
-		case int64, float64:
-			switch currField.Kind() {
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				currField.SetInt(int64(vv.(float64)))
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				currField.SetUint(uint64(vv.(float64)))
-			case reflect.Float32, reflect.Float64:
-				currField.SetFloat(vv.(float64))
-			}
-		case bool:
-			currField.SetBool(vv)
-		case []interface{}: // non basic type fields
-			support.Log("[]interface{}: %v", vv)
-
-			switch k {
-			case "Comps":
-				for _, u := range vv { // iterate though all components
-					support.Log("u: %v", vv)
-					compData := u.(map[string]interface{})
-					val, ok := compData["Type"]
-					if !ok {
-						// TODO: handle error
-						support.LogError("Component::Type not found.", nil)
-					}
-
-					comp := CoreTempFactoryFunc(val.(string))
-					support.Log("Comp: %v", comp)
-					Serialize(comp, u)
-					obj.(*Goc).AddComp(comp)
-				}
-			}
+		if c.State == Stopped {
+			break UpdateLoop
 		}
 	}
+
+	switch c.State {
+	case Rebooting:
+		return utils.ES_Restart
+	}
+
+	return utils.ES_Success
+}
+
+func (c *Core) RegisterSpace(s Space) {
+	c.spaces = append(c.spaces, s)
+}
+
+func (c *Core) RegisterManager(m Manager) {
+	c.managers = append(c.managers, m)
 }

@@ -14,6 +14,11 @@
           "path":"core",
           "name":"core",
           "folder_exclude_patterns":["pkg", "bin"]
+        },
+        {
+          "path":"../../../../rsrc",
+          "name":"Resources",
+          "folder_exclude_patterns":["pkg", "bin"]
         }
     ],
     "settings":

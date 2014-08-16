@@ -14,5 +14,5 @@ var _ = Suite(&DefinesSpecSuite{})
 
 func (s *DefinesSpecSuite) Test_Defines(c *C) {
 	c.Assert(0, Equals, ES_Success)
-	c.Assert(1321, Equals, ES_Restart)
+	c.Assert(1, Equals, ES_Restart)
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var silentMode = false
+var SilentMode = false
 
 // TODO: show this to digipen
 type IndentLevel int
@@ -28,8 +28,11 @@ func (l *IndentLevel) String() string {
 // TODO: move global into Env
 var IndentationLevel *IndentLevel
 
+func init() {
+	IndentationLevel = new(IndentLevel)
+}
 func Trace() {
-	if silentMode {
+	if SilentMode {
 		return
 	}
 
@@ -53,7 +56,7 @@ func Trace() {
 }
 
 func UnTrace() {
-	if silentMode {
+	if SilentMode {
 		return
 	}
 

@@ -568,7 +568,6 @@ func main() {
 
 	core := &Core{}
 
-	// TODO: implement LoadConfig()
 	cfg := LoadConfig("config.txt")
 	core.StartUp(cfg)
 	// fmt.Printf("\n%#v\n", core)
