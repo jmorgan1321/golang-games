@@ -79,8 +79,6 @@ func testFactoryFunc(name string) interface{} {
 }
 
 func ExampleSerialize() {
-	// test setup
-
 	// Must set up factory functions for any types that the factory will know
 	// about.  These functions will typically go into a game's driver or some
 	// other game specific library (since the factory needs to know about
