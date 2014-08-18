@@ -1,18 +1,15 @@
 package utils
 
 import (
-	. "gopkg.in/check.v1"
+	"github.com/jmorgan1321/golang-games/core/test"
 	"testing"
 )
 
-// Hook up gocheck into the "go test" runner.
-func Test(t *testing.T) { TestingT(t) }
+func Test_Defines(t *testing.T) {
+	// TODO: figure out why this test fails
 
-type DefinesSpecSuite struct{}
+	test.ExpectEQ(t, 0, ES_Success, "ES_Success was wrong")
+	test.ExpectEQ(t, 1, ES_Restart, "ES_Restart was wrong")
 
-var _ = Suite(&DefinesSpecSuite{})
-
-func (s *DefinesSpecSuite) Test_Defines(c *C) {
-	c.Assert(0, Equals, ES_Success)
-	c.Assert(1, Equals, ES_Restart)
+	test.ExpectEQ(t, 0.025, Epsilon, "Epsilon was wrong")
 }

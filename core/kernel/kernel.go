@@ -5,6 +5,12 @@ import (
 	"github.com/jmorgan1321/golang-games/core/utils"
 )
 
+type FrameUpdateEvent struct {
+	Dt float32
+}
+
+func (*FrameUpdateEvent) GetDelay() float32 { return 0 }
+
 // CoreFactoryFunc allows users to extend the factory by adding in types that
 // they want to serialize in.
 //

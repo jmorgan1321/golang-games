@@ -20,3 +20,5 @@ func (r ReturnCode) String() string {
 		return "Return Code: Success"
 	}
 }
+
+const Epsilon = 0.025
