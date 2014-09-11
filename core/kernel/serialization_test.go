@@ -60,7 +60,7 @@ func (*serTestSpace) Init() {
 }
 func (*serTestSpace) DeInit() {
 }
-func (*serTestSpace) Update() {
+func (*serTestSpace) Update(dt float32) {
 }
 func (ts *serTestSpace) AddGoc(goc *Goc) {
 	ts.Gocs = append(ts.Gocs, goc)

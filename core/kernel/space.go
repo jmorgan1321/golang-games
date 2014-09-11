@@ -6,6 +6,6 @@ package kernel
 type Space interface {
 	Init()
 	DeInit()
-	Update()
+	Update(dt float32)
 	AddGoc(goc *Goc)
 }

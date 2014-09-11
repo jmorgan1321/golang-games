@@ -3,7 +3,10 @@ package kernel
 import (
 	"github.com/jmorgan1321/golang-games/core/debug"
 	"github.com/jmorgan1321/golang-games/core/utils"
+	"time"
 )
+
+// var GameCore *Core
 
 type FrameUpdateEvent struct {
 	Dt float32
@@ -79,9 +82,13 @@ func (c *Core) Run() utils.ReturnCode {
 	debug.Trace()
 	defer debug.UnTrace()
 
+	prevTime := time.Now()
 UpdateLoop:
-	for c.State == Running || c.State == Stopped {
-		// support.Log("what the heck %s", c.State)
+	for currTime := range time.Tick(16667 * time.Microsecond) {
+		if c.State != Running && c.State != Stopped {
+			break UpdateLoop
+		}
+
 		c.GameData.CurrFrame++
 
 		for _, mgr := range c.managers {
@@ -90,12 +97,15 @@ UpdateLoop:
 		}
 
 		for _, spc := range c.spaces {
-			spc.Update()
+			dt := float32(currTime.Sub(prevTime).Seconds())
+			spc.Update(dt)
 		}
 
 		if c.State == Stopped {
 			break UpdateLoop
 		}
+
+		prevTime = currTime
 	}
 
 	switch c.State {

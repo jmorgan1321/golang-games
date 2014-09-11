@@ -195,7 +195,7 @@ func (ts *TestSpace) DeInit() {
 	actOut = append(actOut, ts.name+" DeInit()")
 }
 
-func (ts *TestSpace) Update() {
+func (ts *TestSpace) Update(dt float32) {
 	actOut = append(actOut, ts.name+" Update()")
 }
 
