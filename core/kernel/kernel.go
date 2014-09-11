@@ -82,30 +82,36 @@ func (c *Core) Run() utils.ReturnCode {
 	debug.Trace()
 	defer debug.UnTrace()
 
+	framesPerSec := time.Duration(int(1e9) / 30)
+	clk := time.NewTicker(framesPerSec)
 	prevTime := time.Now()
+
 UpdateLoop:
-	for currTime := range time.Tick(16667 * time.Microsecond) {
-		if c.State != Running && c.State != Stopped {
-			break UpdateLoop
+	for {
+		select {
+		case currTime := <-clk.C:
+			if c.State != Running && c.State != Stopped {
+				break UpdateLoop
+			}
+
+			c.GameData.CurrFrame++
+
+			for _, mgr := range c.managers {
+				mgr.BeginFrame()
+				defer mgr.EndFrame()
+			}
+
+			for _, spc := range c.spaces {
+				dt := float32(currTime.Sub(prevTime).Seconds())
+				spc.Update(dt)
+			}
+
+			if c.State == Stopped {
+				break UpdateLoop
+			}
+
+			prevTime = currTime
 		}
-
-		c.GameData.CurrFrame++
-
-		for _, mgr := range c.managers {
-			mgr.BeginFrame()
-			defer mgr.EndFrame()
-		}
-
-		for _, spc := range c.spaces {
-			dt := float32(currTime.Sub(prevTime).Seconds())
-			spc.Update(dt)
-		}
-
-		if c.State == Stopped {
-			break UpdateLoop
-		}
-
-		prevTime = currTime
 	}
 
 	switch c.State {
