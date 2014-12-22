@@ -2,11 +2,12 @@ package kernel
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/jmorgan1321/golang-games/core/debug"
 	"github.com/jmorgan1321/golang-games/core/support"
 	"github.com/jmorgan1321/golang-games/core/test"
 	"github.com/jmorgan1321/golang-games/core/utils"
-	"testing"
 )
 
 func init() {
@@ -81,9 +82,11 @@ type TestManager struct {
 	name, comp string
 }
 type TestMgr1InitComponent struct {
+	OwnerMngr
 	Test, Type string
 }
 type TestMgr2InitComponent struct {
+	OwnerMngr
 	Test, Type string
 }
 
@@ -136,7 +139,7 @@ func TestCore_Managers(t *testing.T) {
 	core.RegisterManager(Mgr1)
 	core.RegisterManager(Mgr2)
 
-	cfg := LoadConfig("D:/work/fbl_grfx_dev_p/windows/sandbox/go_tools/rsrc/test/json/objects/kernel/TestCore.jrm")
+	cfg := LoadConfig("C:/Users/jmorgan/Sandbox/golang/rsrc/test/json/objects/kernel/TestCore.jrm")
 
 	// Testing Core.StartUp()
 	actOut = nil

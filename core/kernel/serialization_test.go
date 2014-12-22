@@ -1,17 +1,19 @@
 package kernel
 
 import (
-	"encoding/json"
-	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/jmorgan1321/golang-games/core/support"
 	"github.com/jmorgan1321/golang-games/core/test"
-	"testing"
 )
 
 type serTestComp1 struct {
+	OwnerMngr
 	X, Y, Z int
 }
 type serTestComp2 struct {
+	OwnerMngr
 	Shape string
 }
 
@@ -38,8 +40,8 @@ func TestSerialize_Goc(t *testing.T) {
 
 	holder, _ := support.ReadData(data)
 
-	var goc *Goc
-	Serialize2(&goc, holder)
+	goc := Goc{}
+	SerializeInPlace(&goc, holder)
 	test.ExpectEQ(t, "camera", goc.Name, "goc.Name was set correctly")
 
 	cmp1 := goc.GetComp("serTestComp1").(*serTestComp1)
@@ -65,6 +67,30 @@ func (*serTestSpace) Update(dt float32) {
 func (ts *serTestSpace) AddGoc(goc *Goc) {
 	ts.Gocs = append(ts.Gocs, goc)
 }
+func (ts *serTestSpace) Unmarshal(data interface{}) {
+	m := data.(map[string]interface{})
+
+	// Unmarshall all "normal" fields
+	for k, v := range m {
+		if k == "Type" || k == "Gocs" {
+			continue
+		}
+
+		f := reflect.ValueOf(ts).Elem().FieldByName(k)
+		SerializeInPlace(f, v)
+	}
+
+	// TODO: pull this out into GocManager (so every type of
+	//       space doesn't have to re-implement this).
+	// Special case handling for `Gocs`
+	for _, v := range m["Gocs"].([]interface{}) {
+		objData := v.(map[string]interface{})
+		typename, _ := objData["Type"]
+		obj := factoryFunc(typename.(string)).(*Goc)
+		SerializeInPlace(obj, objData)
+		ts.AddGoc(obj)
+	}
+}
 
 func testFactoryFunc(name string) interface{} {
 	switch name {
@@ -76,95 +102,4 @@ func testFactoryFunc(name string) interface{} {
 		return &serTestSpace{}
 	}
 	return nil
-}
-
-func ExampleSerialize() {
-	// Must set up factory functions for any types that the factory will know
-	// about.  These functions will typically go into a game's driver or some
-	// other game specific library (since the factory needs to know about
-	// every type it can possibly create).
-	//
-	CoreFactoryFunc = testFactoryFunc
-
-	exampleObjectFileData := []byte(
-		`{
-    "Type":"serTestSpace",
-    "Name": "LevelSpace",
-    "Gocs": [
-        {
-            "Type": "Goc",
-            "Name": "Camera1",
-            "Components": [
-                {"Type": "CameraComponent", "X": 10, "Y": 10 },
-                {"Type": "ColliderComponent", "Shape": "aabb"}
-            ]
-        },
-        {
-            "Type": "Goc",
-            "Name": "Camera2",
-            "Components": [
-                {"Type": "CameraComponent", "X": 20, "Z": 30 },
-                {"Type": "ColliderComponent", "Shape": "aabb"}
-            ]
-        },
-        {
-            "Type": "Goc",
-            "Name": "Player",
-            "Components": [
-                {"Type": "ColliderComponent", "Shape": "circle"}
-            ]
-        }
-    ]
-}`)
-
-	holder, _ := support.ReadData(exampleObjectFileData)
-
-	// Since we want to fill out interfaces (and not concrete types), we must
-	// pass a pointer to a pointer (in this case a pointer to the interface).
-	//
-	var space Space
-	Serialize2(&space, holder)
-
-	b, _ := json.MarshalIndent(space, "", "    ")
-	fmt.Println(string(b))
-	// Output:
-	// {
-	//     "Name": "LevelSpace",
-	//     "Gocs": [
-	//         {
-	//             "Name": "Camera1",
-	//             "Components": [
-	//                 {
-	//                     "X": 10,
-	//                     "Y": 10,
-	//                     "Z": 0
-	//                 },
-	//                 {
-	//                     "Shape": "aabb"
-	//                 }
-	//             ]
-	//         },
-	//         {
-	//             "Name": "Camera2",
-	//             "Components": [
-	//                 {
-	//                     "X": 20,
-	//                     "Y": 0,
-	//                     "Z": 30
-	//                 },
-	//                 {
-	//                     "Shape": "aabb"
-	//                 }
-	//             ]
-	//         },
-	//         {
-	//             "Name": "Player",
-	//             "Components": [
-	//                 {
-	//                     "Shape": "circle"
-	//                 }
-	//             ]
-	//         }
-	//     ]
-	// }
 }

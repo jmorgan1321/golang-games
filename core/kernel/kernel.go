@@ -1,19 +1,23 @@
 package kernel
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/jmorgan1321/golang-games/core/debug"
 	"github.com/jmorgan1321/golang-games/core/utils"
-	"time"
 )
 
-// var GameCore *Core
-
+// FrameUpdateEvent is dispatched by the core, once per frame.
+//
+// It can be used by game entities that need to know when the frame is
+// has ticked (and for how long).
 type FrameUpdateEvent struct {
 	Dt float32
 }
 
-func (*FrameUpdateEvent) GetDelay() float32 { return 0 }
-
+// TODO: remove CoreFactoryFunc for CoreFactoryMap
+//
 // CoreFactoryFunc allows users to extend the factory by adding in types that
 // they want to serialize in.
 //
@@ -25,6 +29,28 @@ func (*FrameUpdateEvent) GetDelay() float32 { return 0 }
 //   }
 // }
 var CoreFactoryFunc func(string) interface{}
+
+var coreFactoryMap = map[string]func() interface{}{}
+
+// RegisterType allows users to extend the factory by adding in types that
+// they want to serialize in.
+//
+// Ie:
+// func init() {
+//     kernel.RegisterType((*ActionList)(nil))
+// }
+//
+func RegisterType(iface interface{}, f func() interface{}) {
+	coreFactoryMap[reflect.TypeOf(iface).Elem().String()] = f
+}
+
+type TypeId struct {
+	Type string
+}
+
+func GetTypeName(iface interface{}) string {
+	return reflect.TypeOf(iface).Elem().String()
+}
 
 // A Core is used to drive every system of the game.  It ticks once a frame a
 // causing all other game components to fire.
@@ -52,6 +78,9 @@ func New() *Core {
 	return core
 }
 
+// StartUp passes an initliazer to all managers on start up, before intializing
+// all registered spaces.
+//
 func (c *Core) StartUp(config GameObject) {
 	debug.Trace()
 	defer debug.UnTrace()
@@ -65,16 +94,17 @@ func (c *Core) StartUp(config GameObject) {
 	}
 }
 
+// Shutdown deinits all spaces and then deinits all managers (in LIFO order)
 func (c *Core) ShutDown() {
 	debug.Trace()
 	defer debug.UnTrace()
 
-	for i := len(c.managers) - 1; i >= 0; i-- {
-		c.managers[i].ShutDown()
-	}
-
 	for i := len(c.spaces) - 1; i >= 0; i-- {
 		c.spaces[i].DeInit()
+	}
+
+	for i := len(c.managers) - 1; i >= 0; i-- {
+		c.managers[i].ShutDown()
 	}
 }
 
@@ -106,6 +136,7 @@ UpdateLoop:
 				spc.Update(dt)
 			}
 
+			// TODO: make a public stopped channel, once gamecore is public
 			if c.State == Stopped {
 				break UpdateLoop
 			}

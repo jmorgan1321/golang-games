@@ -5,6 +5,7 @@ import (
 	"github.com/jmorgan1321/golang-games/core/support"
 )
 
+// LoadConfig serialize in a GameObject from a text file.
 func LoadConfig(file string) GameObject {
 	debug.Trace()
 	defer debug.UnTrace()
@@ -20,7 +21,7 @@ func LoadConfig(file string) GameObject {
 		return nil
 	}
 
-	var goc *Goc
-	Serialize2(&goc, holder)
-	return goc
+	goc := Goc{}
+	SerializeInPlace(&goc, holder)
+	return &goc
 }

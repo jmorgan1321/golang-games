@@ -1,0 +1,598 @@
+You Should Learn Go
+(Or Anything but C++!)
+26 Sep 2014
+Tags: Go golang
+
+Jeff Morgan
+XBOX R&D, Microsoft
+jeffreymorgan1321@gmail.com
+
+* Who am I?
+
+.image ../../SpaceRep\html\decks\ppc\image\add.jpg
+
+.link http://localhost:8080
+
+This is a bunch of text I wrote to see what
+happens to paragraphs
+
+This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs
+
+
+This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs This is a bunch of text I wrote to see what happens to paragraphs
+
+
+* Goals and Format
+
+- Show Principles > Tell Details
+- Mini-Talk, Q/A, Repeat
+- The one takeaway:
+
+    C++ is a big gun that should only be used when you really, really have to.
+
+* Why *this* talk?
+
+- DigiPen Specific
+- Threading/Language Exposure
+- Share Knowledge with Alumni
+- Didn't Want to "Show Off" Game Engine
+
+* Why Go?
+
+- *Smart* *Language*
+- Default Go vs C++
+- Sublime Text and Go / Documentation
+- Modern
+
+* Smart Language
+
+- I learn by using it
+    - table driven testing
+    - powerful, simple regex tools
+    - lexical analysis
+    - threading, concurrency
+    - how to write maintainable code
+    - fully open-source, documented, with living code examples
+
+- built to solve software engineering problems
+    - maintainability
+        - testing
+        - documentation
+        - less gotcha's
+        - error handling
+        - compiler magic
+    - compilation speed
+    - deployment
+    - multi-architecture
+    - threading/networking
+    - code sharing
+
+* Smart Language
+
+- Rob Pike, Russ Cox, Ken Thompson, Brad Fitzgerald
+    - Ken Thompson invented B, C's direct successor
+    - Rob Pike and Ken Thompson were huge linux/unix devs
+    - Rob Pike has written >3 languages
+    - Brad Fitzgerald invented LiveJournal
+    - Russ Cox, MIT compiler expert
+
+- simple parsing for humans and compilers
+    - gofmt, cover
+    - ships with go lexer, parser, and pretty printer(!)
+
+- less is more
+    - you could read through the spec in a half hour
+
+- composition
+    - over inheritance
+    - threading
+
+* Why Go?
+
+- Smart Language
+- *Default* *Go* *vs* *C++*
+- Sublime Text and Go / Documentation
+- Modern
+
+* Default Go vs C++ - memory allocation
+- default
+    // Go
+    func Foo() {
+        x := &Object{}  // doesn't leak
+    }
+    // C++
+    void Foo() {
+        Object *x := new Object(); // leak
+    }
+- opt-in
+    // Go
+    import "unsafe"
+    func Foo() {
+        p := unsafe.Pointer(&Object{}) // leak
+    }
+    // C++
+    #include <memory>
+    void Foo() {
+        std::unique_ptr<Object> p(new Object())  // doesn't leak
+    }
+
+
+* Default Go vs C++ - initialization
+.play -edit default_init.go /beg OMIT/,/end OMIT/
+
+    // C++
+    struct Foo {
+        int *px, val;
+    };
+
+    void main() {
+        Foo foo;
+        // foo.px == ???, foo.val == ???
+        *foo.px = 1; // undefined!
+    }
+
+* Default Go vs C++ - error handling
+
+.play -edit errors.go
+
+* Default Go vs C++ - error handling
+
+    // C++
+    void main() {
+        funcThatThrowsException();       // No error
+        funcThatDoesntThrowException();  // Not enforced by compiler, could still throw
+        try {
+            funcThatThrowsException();
+        } catch {
+            // handle error
+        }
+    }
+
+* Default Go vs C++ - "non-type" pointers
+.play nontype.go
+
+* Default Go vs C++ - "non-type" pointers
+    void Foo(void *x) {
+        // dynamic_cast                    - Would need a common base type, plus rtti
+        // reinterpret_cast<> or c-style   - Could be dangerous!
+        // static_cast<>                   - Best option
+
+        // NOTE: I know this works for dynamic cast, does it work for static_cast<>?
+        if (char *p = static_cast<char*>(x)) {
+            printf("%s", p);
+        } else if (int p = static_cast<int>(x)) {
+            printf("%d", p);
+        } else {
+            assert(false && "unknown type");
+        }
+    }
+
+    void main() {
+        Foo((void*)5);
+        Foo((void*)"Five");
+        Foo((void*)true);
+    }
+
+* Default Go vs C++ - architecture dependent code
+    // Go
+    // in somefile_x86.go
+    void ArchDependentFunc() {
+        // do x86 stuf here
+    }
+    // in somefile_x64.go
+    void ArchDependentFunc() {
+        // do x64 stuf here
+    }
+
+    // C++
+    void ArchDependentFunc() {
+        #ifdef x86
+            // do x86 something here
+        #elseif x64
+            // do x64 something here
+        #endif
+    }
+
+* Default Go vs C++ - enum scope
+
+.code foo/scope.go
+.play -edit scope.go
+
+* Default Go vs C++ - enum scope
+    // C++
+    enum Foo {Bar, Baz, last_foo};
+
+    // enum values "leak" into enclosing scope
+    Foo f = Bar
+    f = Baz
+    f = last_foo // even control enums are visible?
+
+* Default Go vs C++ - enum scope
+    // C++
+    namespace Foo {
+        enum Enum {Bar, Baz, last_foo};
+    }  // namespace Foo
+
+    // Plugged the leak
+    Foo::Enum f = Foo::Bar
+    f = Foo::Baz
+    f = Foo::last_foo // even control enums are visible?
+
+* Default Go vs C++ - enum scope
+    // C++11
+    enum class Foo3{Bar, Baz, last_foo};
+    Foo g = Foo3::Bar
+    g = Foo3::Baz
+    g = Foo3::last_foo // even control enums are visible?
+
+* Default Go vs C++ - switch behavior
+
+.play switch.go HLs23
+
+* Default Go vs C++ - switch behavior
+
+    // C++
+    int x = SomeRandomIntGenerator();
+    int y = 5;      // By default, can't declare variable in case-label scope
+    switch (x) {
+    case 0:
+    case 1:
+        printf("%d\n", y+x);
+    default:
+        // OOPS! We Fell through
+        printf(default\n");
+    }
+
+* Default Go vs C++ - switch behavior
+    // C++
+    int x = SomeRandomIntGenerator();
+    switch (x) {
+    case 0:
+    case 1: {
+        int y = 5;
+        printf("%d\n", y+x);
+    } default: {
+        // OOPS! We Fell through
+        printf(default\n");
+    }
+
+* Default Go vs C++ - switch behavior
+    int x = SomeRandomIntGenerator();
+    switch (x) {
+    case 0:
+    case 1: {
+        int y = 5;
+        printf("%d\n", y+x);
+        break;
+    } default: {
+        printf(default\n");
+        break;
+    }
+
+* Default Go vs C++ - switch behavior
+    // C++
+    int x = SomeRandomIntGenerator();
+    explicit switch (x) {
+    case 0:
+    case 1: {
+        int y = 5;
+        printf("%d\n", y+x);
+    } default: {
+        printf(default\n");
+    }
+
+* Default Go vs C++ - array access
+
+.play -edit array.go
+
+* Default Go vs C++ - array access
+    // C++
+    void Foo(int arr[3]) {}
+
+    void Bar() {
+        int a3[3] = {};
+        int a4[4] = {};
+        int *pa;
+
+        pa = a3;
+        a3 = a4;
+        Foo(pa);
+        Foo(a3);
+        Foo(a4);
+    }
+
+* Default Go vs C++ - division by zero
+    // Go
+.play divzero.go
+
+    // C++
+    int x = 5/0;   // undefined
+
+* Default Go vs C++ - "boolean" expressions
+.play -edit bools.go
+
+    // C++
+    void main() {
+        int *p, i;
+
+        // These are valid.  Imagine writing a smart pointer in C++.   No bueno.
+        // Plus, implicit conversions happen for many other types to . No bueno.
+        if (p || i) {}
+    }
+
+* Questions?
+
+* Why Go?
+
+- Smart Language
+- Default Go vs C++
+- *Sublime* *Text* *and* *Go* */* *Documentation*
+- Modern
+
+* Sublime Text and Go / Documentation
+
+    - show sublimego: helloworld print msg from commandline flag
+        - build godoc locally
+        - go test
+            - go test -coverprofile=coverage.out
+            - go tool cover -func=coverage.out
+            - go tool cover -html=coverage.out
+            - comes with automatic profiling
+        - go vet, go fix, go fmt
+
+    - code walks, present, godoc, test examples
+
+
+* Questions?
+
+
+* Why Go?
+
+- Smart Language
+- Default Go vs C++
+- Sublime Text and Go / Documentation
+- *Modern*
+
+* Modern
+
+    - threading examples
+
+    - defer
+
+    - package
+
+    - 1st class funcs
+
+    - default init, range checks
+
+    - reflection, networking, text/html templates
+
+* Modern - threading
+
+.play chan.go /beg OMIT/,/end OMIT/
+
+* Modern - threading
+
+    show threading1-3 (playground)
+
+* Modern
+
+    - defer
+
+    - package
+
+    - 1st class funcs
+
+    - default init, range checks
+
+    - reflection, networking, text/html templates
+
+* Questions?
+
+* Biggest Departure from C++?
+
+ These aren't in order!
+
+* Biggest Departure from C++?
+
+- *iota,* *const*
+- First Class Threads and Functions
+- Type System, Type Switch
+- No Inheritance, interfaces
+- Principles(*)
+- Slices and Arrays(*)
+
+* iota, const
+
+.code tok/token.go
+
+* iota, const
+
+.play token.go
+
+* Biggest Departure from C++?
+
+- iota, const
+- *First* *Class* *Threads* *and* *Functions*
+- Type System, Type Switch
+- No Inheritance, interfaces
+- Principles(*)
+- Slices and Arrays(*)
+
+* First Class Threads and Functions
+
+    - Early prototype testing the messaging system.  Notice how the anonymous
+      function allows me to translate arguments that the message invoker
+      understands into messages that the receiver understands.
+
+        func (ls *LevelSpace) Construct() {
+            DebugTrace()
+            defer DebugUnTrace()
+
+            grfx := &GraphicsSystem{Dispatcher: &BasicDispatcher{}}
+            ls.systems = append(ls.systems, grfx)
+
+            // TODO: move this into GraphicsSystem.Init()
+            //       must store parent space in GameObject
+            grfx.RegisterForEvent(ls, "RegisterGraphicsComp", func(e EventData) {
+                grfx.Register(e.(*GraphicsComp))
+            })
+            // TODO: move this into GraphicsComp.Init()
+            ls.TriggerEvent("RegisterGraphicsComp", &GraphicsComp{X: 10, Y: 2, Dispatcher: &BasicDispatcher{}})
+        }
+
+* First Class Threads and Functions
+
+.play closure.go /beg OMIT/,/end OMIT/
+
+
+* First Class Threads and Functions
+    // C++
+    /*
+        from http://msdn.microsoft.com/en-us/library/dd293603.aspx:
+
+        lambda introducer can capture variables in a few different ways:
+        [] = capture no variable in enclosing scope
+        [=] = set default capture mode to by value
+        [&] = set default capture mode to by reference
+        [v] = capture the variable v by value
+        [&v] = capture the variable v by reference
+        [=,&v] = capture the variable v by reference and everything else by value
+        ...  = etc, etc
+    */
+    int y = 5;
+    auto f = [&y](int x)->bool {
+        if (x < y) { return true; }
+
+        y++;
+        return false;
+    };
+    bool b = f(5);
+    printf("%s %d", (b?"true":"false"), y);
+    b = f(5);
+    printf("%s %d", (b?"true":"false"), y);
+
+
+* First Class Threads and Functions
+    - functions are types
+
+.play functypesystem.go /beg show A OMIT/,/end show A OMIT/ HLfun
+
+* Type System, Type Switch
+
+.play -edit typesytem.go
+
+* Biggest Departure from C++?
+
+- iota, const
+- First Class Threads and Functions
+- *Type* *System*, *Type* *Switch*
+- No Inheritance, interfaces
+- Principles(*)
+- Slices and Arrays(*)
+
+* Type System, Type Switch
+
+.code serialization.go /beg show 1 OMIT/,/end show 1 OMIT/ HLts2
+
+
+* Type System, Type Switch
+
+.code serialization.go /beg show 2 OMIT/,/end show 2 OMIT/
+
+
+* Type System, Type Switch
+
+.code serialization.go /beg show 3 OMIT/,/end show 3 OMIT/ HLts
+
+
+* Type System, Type Switch
+
+.code serialization.go /beg show 4 OMIT/,/end show 4 OMIT/ HLsy
+
+* Biggest Departure from C++?
+
+- iota, const
+- First Class Threads and Functions
+- Type System, Type Switch
+- *No* *Inheritance*, *interfaces*
+- Principles(*)
+- Slices and Arrays(*)
+
+* No Inheritance, interfaces
+
+.code interface1.go /beg show A OMIT/,/end show A OMIT/ HLxxx
+
+* No Inheritance, interfaces
+
+.play interface1.go /beg show B OMIT/,/end show B OMIT/
+
+
+* No Inheritance, interfaces
+
+.code messaging.go /^type EventData/,/end slide 1/
+
+* No Inheritance, interfaces
+
+.code messaging.go /^type DelayedEvent/,/end OMIT/ HLxxx
+
+* Questions?
+
+* Things I Miss?
+
+- easy gui programming
+    - libraries aren't there (yet)
+- macros
+    - I actually ran into a giant macro bug right after I wrote this
+        - /P /C saved the day
+        - probably more trouble than they're worth
+- Fully supported IDE
+    - gdb not fully supported for go
+- Unions
+- Windows Support
+    - Go tool used gcc compiler flags
+    - debug support is unix-based
+
+- Not knowing about Go
+
+* Summary
+
+* Questions?
+
+* Resources
+
+    -- learning go
+    https://golang.org/doc/effective_go.html
+    https://golang.org/doc/code.html
+    http://tour.golang.org
+    https://gobyexample.com
+    http://golang.org/doc/codewalk/functions/
+    http://golang.org/pkg/testing/
+
+* Resources
+
+    -- go tools
+    https://golang.org/doc/articles/go_command.html
+    http://blog.golang.org/cover
+    http://blog.golang.org/profiling-go-programs
+    http://blog.golang.org/godoc-documenting-go-code
+    http://blog.natefinch.com/2014/04/effective-godoc.html
+    http://golang.org/doc/gdb
+
+* Resources
+
+    -- threading, concurrency
+    http://blog.golang.org/concurrency-is-not-parallelism
+    Go Concurrency Patterns - https://www.youtube.com/watch?v=f6kdp27TYZs
+    http://blog.golang.org/advanced-go-concurrency-patterns
+    http://golang.org/doc/codewalk/sharemem/
+    http://blog.golang.org/pipelines
+
+* Resources
+
+    -- super cool miscellany
+    Lexical Scanning in Go - https://www.youtube.com/watch?v=HxaD_trXwRE
+    https://code.google.com/p/go-wiki/wiki/DesignDocuments
+    https://code.google.com/p/go-wiki/wiki/TableDrivenTests
+    http://gophervids.appspot.com/#
+    http://blog.golang.org/c-go-cgo

@@ -2,10 +2,13 @@ package kernel
 
 import (
 	"container/list"
+
 	"github.com/jmorgan1321/golang-games/core/utils"
 )
 
-type EventData interface {
+type EventData interface{}
+type DelayedEventData interface {
+	EventData
 	GetDelay() float32
 }
 type EventHandler func(EventData)
@@ -14,6 +17,7 @@ type EventDispatcher interface {
 	RegisterForEvent(event string, sender EventDispatcher, handler EventHandler)
 	TriggerEvent(event string, data EventData)
 	AddListener(event string, handler EventHandler) *tracker
+	// TODO: remove this
 	SetOwner(EventDispatcher)
 }
 
@@ -106,7 +110,11 @@ func (d *DelayDispatcher) Init() {
 }
 
 func (d *DelayDispatcher) TriggerEvent(event string, data EventData) {
-	d.triggerEventDelayed(event, data, data.GetDelay())
+	if de, ok := data.(DelayedEventData); !ok {
+		d.BasicDispatcher.TriggerEvent(event, data)
+	} else {
+		d.triggerEventDelayed(event, data, de.GetDelay())
+	}
 }
 
 func (d *DelayDispatcher) triggerEventDelayed(event string, data EventData, delay float32) {
