@@ -7,8 +7,7 @@ import (
 
 // LoadConfig serialize in a GameObject from a text file.
 func LoadConfig(file string) GameObject {
-	debug.Trace()
-	defer debug.UnTrace()
+	defer debug.Trace().UnTrace()
 
 	data, err := support.OpenFile(file)
 	if err != nil {

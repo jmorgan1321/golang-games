@@ -2,23 +2,17 @@
     "folders":
     [
         {
-          "path":"./../",
+          "path":".",
           "folder_exclude_patterns":["pkg", "bin"]
         },
         {
-          "path":"launcher",
-          "name":"launcher",
+          "path":"../../../../src",
+          "name":"GOPATH",
           "folder_exclude_patterns":["pkg", "bin"]
         },
         {
-          "path":"core",
-          "name":"core",
-          "folder_exclude_patterns":["pkg", "bin"]
-        },
-        {
-          "path":"../../../../rsrc",
-          "name":"Resources",
-          "folder_exclude_patterns":["pkg", "bin"]
+          "path":"/usr/local/go/src",
+          "name":"GOROOT"
         }
     ]
 }

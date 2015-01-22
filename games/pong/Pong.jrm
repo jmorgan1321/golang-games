@@ -1,0 +1,12 @@
+{
+    "Type": "coretype.JGoc",
+    "Name": "GameConfig",
+    "Components": [
+        {
+            "Type": "graphics.Config",
+            "W": 640,
+            "H": 380
+        }
+    ]
+}
+

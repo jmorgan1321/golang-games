@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jmorgan1321/SpaceRep/internal/test"
+	"github.com/jmorgan1321/golang-game/lib/engine/test"
 
 	"testing"
 )
@@ -151,8 +151,8 @@ spin counterclock
 		output = ""
 		alist := &ActionList{}
 		goc := Goc{}
-		goc.AddComp(&alistTestTransformComp{})
-		goc.AddComp(alist)
+		goc.AddComps(&alistTestTransformComp{})
+		goc.AddComps(alist)
 		alist.Enqueue(tt.actions...)
 
 		for !alist.IsFinished() {

@@ -1,6 +1,7 @@
 package kernel
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -37,7 +38,7 @@ var coreFactoryMap = map[string]func() interface{}{}
 //
 // Ie:
 // func init() {
-//     kernel.RegisterType((*ActionList)(nil))
+//     kernel.RegisterType((*ActionList)(nil), func()interface{ return &ActionList{}})
 // }
 //
 func RegisterType(iface interface{}, f func() interface{}) {
@@ -59,6 +60,7 @@ type Core struct {
 	managers []Manager
 	spaces   []Space
 	GameData
+	RootSpace Space
 }
 
 // GameData stores information about the game, like frame information and game
@@ -66,15 +68,14 @@ type Core struct {
 type GameData struct {
 	CurrFrame int
 	State     State
+	TimeStamp time.Time
 }
 
 func New() *Core {
-	debug.Trace()
-	defer debug.UnTrace()
+	defer debug.Trace().UnTrace()
 
 	core := &Core{}
 	core.State = Running
-
 	return core
 }
 
@@ -82,8 +83,7 @@ func New() *Core {
 // all registered spaces.
 //
 func (c *Core) StartUp(config GameObject) {
-	debug.Trace()
-	defer debug.UnTrace()
+	defer debug.Trace().UnTrace()
 
 	for _, m := range c.managers {
 		m.StartUp(config)
@@ -96,8 +96,7 @@ func (c *Core) StartUp(config GameObject) {
 
 // Shutdown deinits all spaces and then deinits all managers (in LIFO order)
 func (c *Core) ShutDown() {
-	debug.Trace()
-	defer debug.UnTrace()
+	defer debug.Trace().UnTrace()
 
 	for i := len(c.spaces) - 1; i >= 0; i-- {
 		c.spaces[i].DeInit()
@@ -109,8 +108,7 @@ func (c *Core) ShutDown() {
 }
 
 func (c *Core) Run() utils.ReturnCode {
-	debug.Trace()
-	defer debug.UnTrace()
+	defer debug.Trace().UnTrace()
 
 	framesPerSec := time.Duration(int(1e9) / 30)
 	clk := time.NewTicker(framesPerSec)
@@ -153,10 +151,90 @@ UpdateLoop:
 	return utils.ES_Success
 }
 
+func (c *Core) Step() {
+	if c.TimeStamp.IsZero() {
+		c.TimeStamp = time.Now()
+	}
+
+	if dt := time.Since(c.TimeStamp); dt >= 16*time.Millisecond {
+		fmt.Println("frame:", c.CurrFrame)
+		c.CurrFrame++
+
+		for _, mgr := range c.managers {
+			mgr.BeginFrame()
+			defer mgr.EndFrame()
+		}
+
+		for _, spc := range c.spaces {
+			spc.Update(float32(dt))
+		}
+		fmt.Println()
+	}
+}
+
+// 	debug.Trace()
+// 	defer debug.UnTrace()
+
+// 	// framesPerSec := time.Duration(int(1e9) / 30)
+// 	// clk := time.NewTicker(framesPerSec)
+// 	// prevTime := time.Now()
+
+// 	// UpdateLoop:
+// 	// for {
+// 	// select {
+// 	// case currTime := <-clk.C:
+// 	// if c.State != Running && c.State != Stopped {
+// 	// 	// break UpdateLoop
+// 	// }
+
+// 	c.GameData.CurrFrame++
+
+// 	for _, mgr := range c.managers {
+// 		mgr.BeginFrame()
+// 		defer mgr.EndFrame()
+// 	}
+
+// 	for _, spc := range c.spaces {
+// 		dt := float32(currTime.Sub(prevTime).Seconds())
+// 		spc.Update(dt)
+// 	}
+
+// 	// // TODO: make a public stopped channel, once gamecore is public
+// 	// if c.State == Stopped {
+// 	// 	break UpdateLoop
+// 	// }
+
+// 	// prevTime = currTime
+// 	// }
+// 	// }
+
+// 	// switch c.State {
+// 	// case Rebooting:
+// 	// 	return utils.ES_Restart
+// 	// }
+
+// 	// return utils.ES_Success
+// }
+
 func (c *Core) RegisterSpace(s Space) {
 	c.spaces = append(c.spaces, s)
 }
 
 func (c *Core) RegisterManager(m Manager) {
 	c.managers = append(c.managers, m)
+}
+
+func (c *Core) RegisterManagers(mgrs ...Manager) {
+	c.managers = append(c.managers, mgrs...)
+}
+func (c *Core) Manager(name string) Manager {
+	for _, mgr := range c.managers {
+		// TODO: possibly switch this to use package.Name
+		mtype := reflect.ValueOf(mgr).Type().Elem()
+		if mtype.Name() == name {
+			return mgr
+		}
+	}
+	// TODO: better error message when component isn't found
+	return nil
 }

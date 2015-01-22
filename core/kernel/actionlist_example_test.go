@@ -1,6 +1,6 @@
 package kernel
 
-import "github.com/jmorgan1321/SpaceRep/internal/support"
+import "github.com/jmorgan1321/golang-game/lib/engine/support"
 
 func init() {
 	RegisterType((*alistTestJumpAction)(nil), func() interface{} {

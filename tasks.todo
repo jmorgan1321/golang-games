@@ -1,49 +1,46 @@
+TODO:
+    Launcher:
+        ☐
+    Pong:
+        ☐
+    Game Engine:
+        ☐ core
+            ☐ gocs, components, spaces, subsystem, manager
+            ☐ factory
+                ☐ serialization, eof cleanup
+
 Intial Project Setup:
-  ✔ Source Control @done (14-06-24 12:41)
-    - git
-    - https://github.com/jmorgan1321/golang-games
-  ☐ Basic project organization
-    - plain tasks
-    - http://golang.org/doc/code.html#Organization
-  ☐ Sublime Text 3
-    - GoSublime, AdvancedNewFile, PlainTasks, VCSGutter, SideBarEnhancements
-  ☐ Golang install
-    - setup GOPATH/GOROOT
-  ☐ Get gdb (or gogdb)
-    - http://www.goinggo.net/2013/06/installing-go-gocode-gdb-and-liteide.html
-  ☐ Get gocheck
+    ✔ Source Control @done (14-06-24 12:41)
+        - git
+        - https://github.com/jmorgan1321/golang-games
+    ☐ Basic project organization
+        - plain tasks
+        - http://golang.org/doc/code.html#Organization
+    ✔ Sublime Text 3 @done (14-12-30 17:22)
+        - GoSublime, AdvancedNewFile, PlainTasks, VCSGutter, SideBarEnhancements
+    ✔ Golang install @done (14-12-30 17:22)
+        - setup GOPATH/GOROOT
+    ☐ Get gdb (or gogdb)
+        - http://www.goinggo.net/2013/06/installing-go-gocode-gdb-and-liteide.html
+    ✔ Test "framework" @done (14-12-30 17:23)
+          - rolled my own
 
-Game Engine:
-  ☐ Learn how to make java script graphics
-  ☐ make game launcher
-  ☐ source control/inital project setup
-    - git
-  ☐ core
-    ☐ gocs, components, spaces, subsystem, manager
-    ☐ factory
-      ☐ serialization, eof cleanup
-    ☐
-
-Presentation:
-  ☐ learn how to use present tool
-    - https://godoc.org/code.google.com/p/go.tools/cmd/godoc
 
 Code Hosting:
-  ☐ learn Github markdown
-    - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
-  ✔ Make initial README.md @done (14-06-24 12:40)
+    ☐ learn Github markdown
+        - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+    ✔ Make initial README.md @done (14-06-24 12:40)
 
 Go Resources:
- ☐ http://gophervids.appspot.com/#
-   - a bunch of videos from go talks of yesteryear
+   ☐ http://gophervids.appspot.com/#
+       - a bunch of videos from go talks of yesteryear
 
 Debugging:
-  ☐ Profiling
-    - https://www.youtube.com/watch?v=_41bkNr7eik#t=290
-    - http://blog.golang.org/profiling-go-programs
-    ☐ show how I profiled/improved GetComponent() (Slow reflection)
+    ☐ Profiling
+        - https://www.youtube.com/watch?v=_41bkNr7eik#t=290
+        - http://blog.golang.org/profiling-go-programs
 
-  ☐ GDB
-    - http://golang.org/doc/gdb
-    - https://github.com/Centny/GoGdb (go gdb sublime plugin)
-    - https://github.com/sirnewton01/godbg (web based go gdb debugger)
+    ☐ GDB
+        - http://golang.org/doc/gdb
+        - https://github.com/Centny/GoGdb (go gdb sublime plugin)
+        - https://github.com/sirnewton01/godbg (web based go gdb debugger)

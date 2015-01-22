@@ -1,0 +1,17 @@
+{
+  "Type": "types.JGoc",
+  "Name": "player",
+  "Components": [
+    {
+      "Type": "input.InputHandler"
+    },
+    {
+      "Type": "graphics.GoRect"
+    },
+    {
+      "Type": "physics.Transform",
+      "X": 100
+    }
+  ]
+}
+
